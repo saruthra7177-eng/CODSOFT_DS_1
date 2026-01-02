@@ -1,0 +1,39 @@
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from google.colab import files
+uploaded = files.upload()
+df = pd.read_excel("Titanic.xlsx")
+
+# View first rows
+df.head()
+# Dataset info
+df.info()
+features = ["Pclass", "gender", "Age", "SibSp", "Parch", "Fare"]
+target = "Survived"
+
+X = df[features].copy()
+y = df[target]
+encoder = LabelEncoder()
+X["gender"] = encoder.fit_transform(X["gender"])
+imputer = SimpleImputer(strategy="median")
+X = imputer.fit_transform(X)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,
+    random_state=42
+)
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+confusion_matrix(y_test, y_pred)
+
